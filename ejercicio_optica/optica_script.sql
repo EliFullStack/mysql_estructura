@@ -21,16 +21,38 @@ CREATE TABLE IF NOT EXISTS `optica`.`proveedores` (
   `id_proveedores` INT(11) NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
   `calle` VARCHAR(45) NULL,
-  `numero` VARCHAR(4) NULL,
-  `piso` VARCHAR(2) NULL,
-  `puerta` VARCHAR(2) NULL,
+  `numero` VARCHAR(15) NULL,
+  `piso` VARCHAR(15) NULL,
+  `puerta` VARCHAR(15) NULL,
   `ciudad` VARCHAR(45) NULL,
-  `codigo_postal` VARCHAR(10) NULL,
+  `codigo_postal` VARCHAR(15) NULL,
   `pais` VARCHAR(45) NULL,
   `telefono` VARCHAR(10) NULL,
   `fax` VARCHAR(10) NULL,
   `nif` VARCHAR(45) NULL,
   PRIMARY KEY (`id_proveedores`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `optica`.`gafas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `optica`.`gafas` (
+  `id_gafas` INT(11) NOT NULL AUTO_INCREMENT,
+  `marca` VARCHAR(45) NULL,
+  `graduacion` VARCHAR(5) NULL,
+  `tipo_de_montura` ENUM('flotante', 'pasta', 'metalica') NULL,
+  `color_de_montura` VARCHAR(15) NULL,
+  `color_cristales` VARCHAR(15) NULL,
+  `precio` DECIMAL(4,2) NULL,
+  `proveedores_id` INT(11) NOT NULL,
+  PRIMARY KEY (`id_gafas`),
+  INDEX `fk_gafas_proveedores_idx` (`proveedores_id` ASC),
+  CONSTRAINT `proveedores_id`
+    FOREIGN KEY (`proveedores_id`)
+    REFERENCES `optica`.`proveedores` (`id_proveedores`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -48,8 +70,14 @@ CREATE TABLE IF NOT EXISTS `optica`.`clientes` (
   `codigo_postal` VARCHAR(45) NULL,
   `correo_electronico` VARCHAR(45) NULL,
   `data_registro` DATE NULL,
-  `recomendado_por` VARCHAR(45) NULL,
-  PRIMARY KEY (`id_clientes`))
+  `clientes_id_clientes` INT(11) NULL,
+  PRIMARY KEY (`id_clientes`),
+  INDEX `fk_clientes_clientes1_idx` (`clientes_id_clientes` ASC),
+  CONSTRAINT `fk_clientes_clientes1`
+    FOREIGN KEY (`clientes_id_clientes`)
+    REFERENCES `optica`.`clientes` (`id_clientes`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -66,42 +94,6 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `optica`.`gafas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `optica`.`gafas` (
-  `id_gafas` INT(11) NOT NULL AUTO_INCREMENT,
-  `marca` VARCHAR(45) NULL,
-  `graduacion` VARCHAR(5) NULL,
-  `tipo_de_montura` ENUM('flotante', 'pasta', 'metalica') NULL,
-  `color_de_montura` VARCHAR(15) NULL,
-  `color_cristales` VARCHAR(15) NULL,
-  `precio` DECIMAL(4,2) NULL,
-  `proveedores_id` INT(11) NOT NULL,
-  `clientes_id` INT(11) NOT NULL,
-  `empleados_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id_gafas`),
-  INDEX `fk_gafas_proveedores_idx` (`proveedores_id` ASC),
-  INDEX `fk_gafas_clientes1_idx` (`clientes_id` ASC),
-  INDEX `fk_gafas_empleados1_idx` (`empleados_id` ASC),
-  CONSTRAINT `proveedores_id`
-    FOREIGN KEY (`proveedores_id`)
-    REFERENCES `optica`.`proveedores` (`id_proveedores`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `clientes_id`
-    FOREIGN KEY (`clientes_id`)
-    REFERENCES `optica`.`clientes` (`id_clientes`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `empleados_id`
-    FOREIGN KEY (`empleados_id`)
-    REFERENCES `optica`.`empleados` (`id_empleados`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `optica`.`ventas`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `optica`.`ventas` (
@@ -109,9 +101,11 @@ CREATE TABLE IF NOT EXISTS `optica`.`ventas` (
   `empleados_id` INT(11) NOT NULL,
   `id_gafas` INT(11) NOT NULL,
   `data_de_venta` DATETIME NOT NULL,
+  `clientes_id_clientes` INT(11) NOT NULL,
   INDEX `fk_ventas_empleados1_idx` (`empleados_id` ASC),
   INDEX `fk_ventas_gafas1_idx` (`id_gafas` ASC),
   PRIMARY KEY (`id_ventas`),
+  INDEX `fk_ventas_clientes1_idx` (`clientes_id_clientes` ASC),
   CONSTRAINT `idempleados`
     FOREIGN KEY (`empleados_id`)
     REFERENCES `optica`.`empleados` (`id_empleados`)
@@ -121,7 +115,29 @@ CREATE TABLE IF NOT EXISTS `optica`.`ventas` (
     FOREIGN KEY (`id_gafas`)
     REFERENCES `optica`.`gafas` (`id_gafas`)
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_ventas_clientes1`
+    FOREIGN KEY (`clientes_id_clientes`)
+    REFERENCES `optica`.`clientes` (`id_clientes`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `optica`.`marcas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `optica`.`marcas` (
+  `id_marca` INT(11) NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NULL,
+  `proveedores_id_proveedores` INT(11) NOT NULL,
+  INDEX `fk_table1_proveedores1_idx` (`proveedores_id_proveedores` ASC),
+  PRIMARY KEY (`id_marca`),
+  CONSTRAINT `fk_table1_proveedores1`
+    FOREIGN KEY (`proveedores_id_proveedores`)
+    REFERENCES `optica`.`proveedores` (`id_proveedores`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
