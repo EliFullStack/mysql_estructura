@@ -82,32 +82,6 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `modelo_pizzeria`.`hamburguesas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`hamburguesas` (
-  `id_hamburguesas` INT(11) NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(45) NULL,
-  `descripcion` VARCHAR(256) NULL,
-  `imagen` VARCHAR(45) NULL,
-  `precio` DECIMAL(2,2) NULL,
-  PRIMARY KEY (`id_hamburguesas`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `modelo_pizzeria`.`bebidas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`bebidas` (
-  `id_bebidas` INT(11) NOT NULL,
-  `nombre` VARCHAR(45) NULL,
-  `descripcion` VARCHAR(256) NULL,
-  `imagen` VARCHAR(45) NULL,
-  `precio` DECIMAL(2,2) NULL,
-  PRIMARY KEY (`id_bebidas`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `modelo_pizzeria`.`categoria_pizzas`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`categoria_pizzas` (
@@ -125,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`pizzas` (
   `nombre` VARCHAR(45) NULL,
   `descripcion` VARCHAR(256) NULL,
   `imagen` VARCHAR(45) NULL,
-  `precio` DECIMAL(2,2) NOT NULL,
+  `precio_unitario` DECIMAL(2,2) NOT NULL,
   `id_categoria_pizzas` INT(11) NOT NULL,
   PRIMARY KEY (`id_pizzas`),
   INDEX `fk_pizzas_categoria_pizzas1_idx` (`id_categoria_pizzas` ASC),
@@ -138,25 +112,104 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `modelo_pizzeria`.`pedido_pizza`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`pedido_pizza` (
+  `id_pedido_pizza` INT(11) NOT NULL,
+  `cantidad` INT NULL,
+  `precio_total` DECIMAL(3,2) NULL,
+  `pizzas_id_pizzas` INT(11) NOT NULL,
+  PRIMARY KEY (`id_pedido_pizza`),
+  INDEX `fk_pedido_pizza_pizzas1_idx` (`pizzas_id_pizzas` ASC),
+  CONSTRAINT `fk_pedido_pizza_pizzas1`
+    FOREIGN KEY (`pizzas_id_pizzas`)
+    REFERENCES `modelo_pizzeria`.`pizzas` (`id_pizzas`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `modelo_pizzeria`.`hamburguesas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`hamburguesas` (
+  `id_hamburguesas` INT(11) NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(256) NULL,
+  `imagen` VARCHAR(45) NULL,
+  `precio_unitario` DECIMAL(2,2) NULL,
+  PRIMARY KEY (`id_hamburguesas`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `modelo_pizzeria`.`pedido_hamburguesa`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`pedido_hamburguesa` (
+  `id_pedido_hamburguesa` INT(11) NOT NULL,
+  `cantidad` INT NULL,
+  `precio_total` DECIMAL(3,2) NULL,
+  `hamburguesas_id_hamburguesas` INT(11) NOT NULL,
+  PRIMARY KEY (`id_pedido_hamburguesa`),
+  INDEX `fk_pedido_hamburguesa_hamburguesas1_idx` (`hamburguesas_id_hamburguesas` ASC),
+  CONSTRAINT `fk_pedido_hamburguesa_hamburguesas1`
+    FOREIGN KEY (`hamburguesas_id_hamburguesas`)
+    REFERENCES `modelo_pizzeria`.`hamburguesas` (`id_hamburguesas`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `modelo_pizzeria`.`bebidas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`bebidas` (
+  `id_bebidas` INT(11) NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NULL,
+  `descripcion` VARCHAR(256) NULL,
+  `imagen` VARCHAR(45) NULL,
+  `precio_unitario` DECIMAL(2,2) NULL,
+  PRIMARY KEY (`id_bebidas`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `modelo_pizzeria`.`pedido_bebidas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`pedido_bebidas` (
+  `id_pedido_bebidas` INT(11) NOT NULL AUTO_INCREMENT,
+  `cantidad` INT NULL,
+  `precio_total` DECIMAL(3,2) NULL,
+  `bebidas_id_bebidas` INT(11) NOT NULL,
+  PRIMARY KEY (`id_pedido_bebidas`),
+  INDEX `fk_pedido_bebidas_bebidas1_idx` (`bebidas_id_bebidas` ASC),
+  CONSTRAINT `fk_pedido_bebidas_bebidas1`
+    FOREIGN KEY (`bebidas_id_bebidas`)
+    REFERENCES `modelo_pizzeria`.`bebidas` (`id_bebidas`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `modelo_pizzeria`.`comandas`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`comandas` (
   `id_comanda` INT(11) NOT NULL AUTO_INCREMENT,
   `data_hora` DATETIME NOT NULL,
   `a_domicilio` BIT(1) NOT NULL,
-  `cantidad_producto` INT NOT NULL,
   `precio_total` DECIMAL(3,2) NOT NULL,
-  `id_hamburguesas` INT(11) NOT NULL,
-  `id_bebidas` INT(11) NOT NULL,
-  `id_pizzas` INT(11) NOT NULL,
   `id_locales` INT(11) NOT NULL,
   `id_clientes` INT(11) NOT NULL,
+  `pedido_pizza_id_pedido_pizza` INT(11) NOT NULL,
+  `pedido_hamburguesa_id_pedido_hamburguesa` INT(11) NOT NULL,
+  `pedido_bebidas_id_pedido_bebidas` INT(11) NOT NULL,
   PRIMARY KEY (`id_comanda`),
   INDEX `fk_comandas_locales1_idx` (`id_locales` ASC),
   INDEX `fk_comandas_clientes1_idx` (`id_clientes` ASC),
-  INDEX `fk_comandas_hamburguesas1_idx` (`id_hamburguesas` ASC),
-  INDEX `fk_comandas_bebidas1_idx` (`id_bebidas` ASC),
-  INDEX `fk_comandas_pizzas1_idx` (`id_pizzas` ASC),
+  INDEX `fk_comandas_pedido_pizza1_idx` (`pedido_pizza_id_pedido_pizza` ASC),
+  INDEX `fk_comandas_pedido_hamburguesa1_idx` (`pedido_hamburguesa_id_pedido_hamburguesa` ASC),
+  INDEX `fk_comandas_pedido_bebidas1_idx` (`pedido_bebidas_id_pedido_bebidas` ASC),
   CONSTRAINT `fk_comandas_locales1`
     FOREIGN KEY (`id_locales`)
     REFERENCES `modelo_pizzeria`.`locales` (`id_locales`)
@@ -167,19 +220,19 @@ CREATE TABLE IF NOT EXISTS `modelo_pizzeria`.`comandas` (
     REFERENCES `modelo_pizzeria`.`clientes` (`id_clientes`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_comandas_hamburguesas1`
-    FOREIGN KEY (`id_hamburguesas`)
-    REFERENCES `modelo_pizzeria`.`hamburguesas` (`id_hamburguesas`)
+  CONSTRAINT `fk_comandas_pedido_pizza1`
+    FOREIGN KEY (`pedido_pizza_id_pedido_pizza`)
+    REFERENCES `modelo_pizzeria`.`pedido_pizza` (`id_pedido_pizza`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_comandas_bebidas1`
-    FOREIGN KEY (`id_bebidas`)
-    REFERENCES `modelo_pizzeria`.`bebidas` (`id_bebidas`)
+  CONSTRAINT `fk_comandas_pedido_hamburguesa1`
+    FOREIGN KEY (`pedido_hamburguesa_id_pedido_hamburguesa`)
+    REFERENCES `modelo_pizzeria`.`pedido_hamburguesa` (`id_pedido_hamburguesa`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_comandas_pizzas1`
-    FOREIGN KEY (`id_pizzas`)
-    REFERENCES `modelo_pizzeria`.`pizzas` (`id_pizzas`)
+  CONSTRAINT `fk_comandas_pedido_bebidas1`
+    FOREIGN KEY (`pedido_bebidas_id_pedido_bebidas`)
+    REFERENCES `modelo_pizzeria`.`pedido_bebidas` (`id_pedido_bebidas`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
